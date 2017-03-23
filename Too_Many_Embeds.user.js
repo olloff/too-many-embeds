@@ -110,6 +110,33 @@ $('a[href*="youtube.com/"]').each(function() {
 	}
 });
 
+$('a[href*="pornhub.com/"]').each(function() {
+	var url = parseLink($(this).attr('href'));
+	var query = url.query;
+	var vidId = [];
+
+	if (url.path[0] == 'embed') {
+		vidId = url.path[1].match('([a-zA-Z0-9]{9,15})');
+	}
+
+	if (query != null && query.length>0) {
+		for(var i=0; i<query.length; i++) {
+			if (vidId == null || vidId.length < 2) {
+				console.log(query,vidId);
+				vidId = query[i].match('viewkey=([a-zA-Z0-9]{9,15})');
+			}
+			console.log(query,vidId);
+		}
+	}
+
+	if (vidId.length < 2) {
+		return false;
+	} else {
+		embedMedia(vidId[1], $(this), 'pornhubExpand', query);
+		//console.log(query,vidId);
+	}
+});
+
 $('a[href*="soundcloud.com/"]').each(function() {
 	var scId = $(this).attr('href');
 	scId.replace(' ', '');
@@ -120,38 +147,6 @@ $('a[href*="vocaroo.com/i/"]').each(function() {
 	var vocId = $(this).attr('href').split('/i/')[1];
 	embedMedia(vocId, $(this), 'vocarooExpand');
 });
-
-/*$('a[href*="imgur.com/"]').each(function() {
-	var url = parseLink($(this).attr('href'));
-	var domains = url.domains;
-	var path = url.path;
-	var imgurId = {};
-
-	if (domains[domains.length-1] == 'i' && path.length > 1) {
-
-	}
-	if (domains[domains.length-1] == 'i' && path.length > 1) {
-		imgurId = url.path[0].match('([a-zA-Z0-9]{7})');
-	}
-	if (imgurId.length > 1) {
-			if (imgurId[1].match('^a\/') != null) {
-				imgurId = imgurId[1].match('(a\/[a-zA-Z0-9]{5})');
-				//console.log($(this).attr('href'),imgurId);
-			} else if (imgurId[1].match('^gallery\/') != null) {
-				imgurId = imgurId[1].match('\/([a-zA-Z0-9]{5,7})$');
-				//console.log($(this).attr('href'),imgurId);
-			} else if (imgurId[1].match('^r\/') != null) {
-				imgurId = imgurId[1].match('\/([a-zA-Z0-9]{7})$');
-				//console.log($(this).attr('href'),imgurId);
-			} else {
-				imgurId = imgurId[1].match('([a-zA-Z0-9]{7})');
-				//console.log($(this).attr('href'),imgurId);
-			}
-			embedMedia(imgurId[1], $(this), 'imgurExpand');
-		embedMedia(imgurId[1], $(this), 'imgurExpand');
-	}
-});*/
-
 
 $('a[href*="imgur.com/"]').each(function() {
 	var url = parseLink($(this).attr('href'));
@@ -165,21 +160,18 @@ $('a[href*="imgur.com/"]').each(function() {
 	}
 });
 
-
 $('a[href*="giphy.com/"]').each(function() {
 	var giphyId;
-	var path = parseLink($(this).attr('href')).path;
+	var url = parseLink($(this).attr('href'));
+	var path = url.path;
 	if (path[0] == 'gifs' && path[path.length-1].split('-').length > 1) {
 		giphyId = path[path.length-1].split('-').reverse()[0];
-		//console.log($(this).attr('href'),'1',path.join('/'));
 		embedMedia(giphyId, $(this), 'giphyExpand');
 	} else if (path[0] == 'gifs') {
 		giphyId = path[1];
-		//console.log($(this).attr('href'),'2',path.join('/'));
 		embedMedia(giphyId, $(this), 'giphyExpand');
 	} else if (path[0] == 'media') {
 		giphyId = path[path.length-2];
-		//console.log($(this).attr('href'),'3',path.join('/'));
 		embedMedia(giphyId, $(this), 'giphyExpand');
 	}
 });
@@ -334,6 +326,8 @@ $(document).find(".embedMedia").click(function() {
 		var thisId = $(this).attr('id');
 		if (thisId == 'youtubeExpand') {
 			$(this).after('<div><iframe width="640" height="360" src="https://www.youtube.com/embed/' + $(this).attr('medId') + '?' + $(this).attr('params') + '&theme=light&autoplay=1" frameborder="0" allowfullscreen></iframe></div>');
+		} else if (thisId == 'pornhubExpand') {
+			$(this).after('<div><iframe src="https://www.pornhub.com/embed/' + $(this).attr('medId') + '" frameborder="0" width="560" height="340" scrolling="no" allowfullscreen></iframe></div>');
 		} else if (thisId == 'soundcloudExpand') {
 			$(this).after('<div><iframe width="100%" height="166" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=' + $(this).attr('medId') + '&amp;color=ff5500&amp;auto_play=true&amp;hide_related=false&amp;show_artwork=true"></iframe></div>');
 		} else if (thisId == 'vocarooExpand') {
